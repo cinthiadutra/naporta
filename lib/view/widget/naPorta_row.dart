@@ -1,8 +1,10 @@
+// ignore_for_file: must_be_immutable, file_names
+
 import 'package:flutter/material.dart';
 
 class NaPortaRow extends StatelessWidget {
 
-    NaPortaRow({required this.icon, required this.texto,});
+    NaPortaRow({super.key, required this.icon, required this.texto,});
 
 
   IconData icon;
@@ -17,7 +19,8 @@ class NaPortaRow extends StatelessWidget {
                      borderRadius: BorderRadius.all(Radius.circular(6))
              
                    ),child:  Icon(icon, color: Colors.white,)),
-                   Text(texto )
+                   SizedBox(width: 5,),
+                   Text(texto, maxLines: 3,)
                  ]);
   }
 }

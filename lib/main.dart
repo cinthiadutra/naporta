@@ -12,11 +12,12 @@ class NaPortaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'NaPoertaAPP',
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
       ),
-      home: const HomePage(),
+      home:  HomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
