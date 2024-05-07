@@ -7,95 +7,133 @@ import 'package:naporta/model/pedido.dart';
 import 'package:naporta/view/widget/naPorta_row.dart';
 import 'package:naporta/viewModel/naPorta_viewModel.dart';
 
-class PageDetail extends StatelessWidget {
-  PageDetail({super.key, 
+class PageDetail extends StatefulWidget {
+  PageDetail({
+    super.key,
     required this.descricaoUlt,
-    required this.descricaoInit,
-    
-
-required this.index, this.pedidos,  });
-
+    required this.index,
+    this.pedidos, required this.origin, required this.destination,
+  });
 
   String descricaoUlt;
-  Rx<String> descricaoInit = ''.obs;
   int index;
   final PedidoModel? pedidos;
+  final LatLng origin;
+  final LatLng destination;
 
- final NaPortaViewModel controller = Get.put(NaPortaViewModel());
- 
+  @override
+  State<PageDetail> createState() => _PageDetailState();
+}
 
+class _PageDetailState extends State<PageDetail> {
+ late GoogleMapController mapController;
+
+  final NaPortaViewModel controller = Get.put(NaPortaViewModel());
 
   @override
   Widget build(BuildContext context) {
-    descricaoInit.value = controller.latitudeFinalController.text;
+    widget.descricaoUlt = controller.destinationAddress;
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(
-          'Pedido ${pedidos?.pedido.toUpperCase()??'C4E2T4'}',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+        appBar: AppBar( foregroundColor: Colors.white,
+          title: Text(
+            'Pedido ${widget.pedidos?.pedido.toUpperCase() ?? 'C4E2T4'}',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          toolbarHeight: 150,
+          backgroundColor: Colors.orange[600],
         ),
-        toolbarHeight: 150,
-        backgroundColor: Colors.orange[600],
-      ),
-      body: Obx(() => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView(shrinkWrap: true, children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * .3,
-                  child: GoogleMap(
-                    markers: controller.markers.obs,
-                    polylines: controller.polylines.obs,
-                                  onMapCreated: controller.onMapCreated,
-                                  initialCameraPosition: const CameraPosition(
-                                    target: LatLng(-22.8527559, -43.2682783),
-                                    zoom: 13.0,
-                                    
-                                  ))),
-                
-                const SizedBox(height: 20,),
-                NaPortaRow(
-                    icon: Icons.directions_car,
-                    texto: ' Saindo em ${controller.startAddressController}\n ${pedidos?.status??''} '),
-                const SizedBox(
-                  height: 40,
-                ),
-                const VerticalDivider(
-                  width:5,
-                  thickness: 4,
-                  color: Colors.red,
-                ),
-                NaPortaRow(icon:  Icons.flag_sharp, texto:'Chegando em ${descricaoInit}\n ${pedidos?.status??''}'),
-          
-        
-           const SizedBox(
-            height: 40,
-          ),
-          const Text('Pedido',style: TextStyle(color: Colors.grey),),
-           Text(
-           pedidos?.pedido.toUpperCase()??"C4E2T4",
-            style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-            const Text('Cliente', style: TextStyle(color: Colors.grey),),
+        body: Obx(
+          () => ListView(shrinkWrap: true, children: [
+            SizedBox(
+                height: MediaQuery.of(context).size.height * .3,
+                child: GoogleMap(
+                  markers: controller.markers,
+                    onMapCreated: onMapCreated,
+                    initialCameraPosition:  CameraPosition(
+                      target: controller.origin.value?? const LatLng(-22.8527559, -43.2682783),
+                      zoom: 11.0,
+                      
+                    ))),
             const SizedBox(
-            height: 10,
-          ),
-           Text(
-           pedidos?.nome??"",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-          ),
-          Text(
-           pedidos?.email??"",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-          ),
-          Text(
-  "+55 ${pedidos?.celular??""}",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-          ),
-        ]),
-      ),
-    ));
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: NaPortaRow(
+                  icon: Icons.directions_car,
+                  texto:
+                      ' Saindo em ${controller.startAddressController}\n ${widget.pedidos?.status ?? ''} '),
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            const VerticalDivider(
+              width: 5,
+              thickness: 4,
+              color: Colors.red,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: NaPortaRow(
+                  icon: Icons.flag_sharp,
+                  texto:
+                      'Chegando em ${widget.pedidos?.destinoFinal}\n ${widget.pedidos?.status ?? ''}'),
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Pedido',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                widget.pedidos?.pedido.toUpperCase() ?? "C4E2T4",
+                style: const TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              
+              child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  const Text(
+                    'Cliente',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    widget.pedidos?.nome ?? "",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                  ),
+                  Text(
+                    widget.pedidos?.email ?? "",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                  ),
+                  Text(
+                    "+55 ${widget.pedidos?.celular ?? ""}",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                  ),
+                ],
+              ),
+            ),
+          ]),
+        ));
+  }
+
+   void onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+    
   }
 }

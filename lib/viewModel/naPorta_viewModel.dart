@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unnecessary_null_comparison, prefer_final_fields
 
 import 'dart:math';
 
@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:naporta/data/db_naPorta.dart';
 import 'package:naporta/model/pedido.dart';
+import 'package:naporta/view/page_detail.dart';
 
 class NaPortaViewModel extends GetxController { 
  late GoogleMapController mapController;
@@ -19,9 +20,10 @@ class NaPortaViewModel extends GetxController {
   var pedidos = <PedidoModel>[].obs;
   double origemLat = -22.8527559;
   double origemLong = -43.2682783;
-  TextEditingController latitudeFinalController =
+  TextEditingController destinationController =
               TextEditingController();
-
+Rx<LatLng?> destination = Rx<LatLng?>(null);
+Rx<LatLng?> origin = Rx<LatLng?>(const LatLng(-22.8527559, -43.2682783));
 
   @override
   void onInit() {
@@ -29,20 +31,37 @@ class NaPortaViewModel extends GetxController {
        loadOrders();
 
   }
+ void clearDestination() {
+    destinationController.clear();
+    destination.value = null;
+  }
 
+  Future<void> goToMapScreen(int i, String destFim) async {
+    List<Location> destinationResults =
+        await locationFromAddress(destinationAddress);
+    if (destinationResults != null) {
+      Get.to(() => PageDetail(origin: origin.value!, destination: destination.value!, descricaoUlt: destFim, index: i,));
+    } else {
+      Get.snackbar(
+        'Erro',
+        'Por favor, insira um destino válido.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    
   }
-
-  Future<void> addMarkersAndRoute(var startAddress,var destinationAddress) async {
   
 
-    List<Location> startResults = await locationFromAddress(startAddress);
+   addMarkersAndRoute(String destino) async {
+  
     List<Location> destinationResults =
-        await locationFromAddress(destinationAddress);
+  await locationFromAddress(destino);
 
-    LatLng startLatLng = LatLng(startResults[0].latitude, startResults[0].longitude);
+    LatLng startLatLng = LatLng(origemLat, origemLong);
     LatLng destinationLatLng =
         LatLng(destinationResults[0].latitude, destinationResults[0].longitude);
 

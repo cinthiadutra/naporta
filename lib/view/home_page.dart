@@ -1,9 +1,10 @@
-// ignore_for_file: prefer_const_constructors_in_immutables
+// ignore_for_file: prefer_const_constructors_in_immutables, must_be_immutable
 
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:naporta/model/pedido.dart';
 import 'package:naporta/view/page_detail.dart';
 import 'package:naporta/view/widget/naPorta_appBar.dart';
@@ -13,15 +14,9 @@ import 'package:validatorless/validatorless.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final NaPortaViewModel controller = Get.put(NaPortaViewModel());
-    return Scaffold(
-      
-      appBar: NaPortaAppBar(onTap: ()async {  TextEditingController numberPedidoController =
+TextEditingController numberPedidoController =
               TextEditingController();
-          TextEditingController latitudeFinalController =
+          TextEditingController destinoController =
               TextEditingController();
           
           TextEditingController descricaoController = TextEditingController();
@@ -29,6 +24,12 @@ class HomePage extends StatelessWidget {
 
           TextEditingController emailController = TextEditingController();
           TextEditingController telefonController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    final NaPortaViewModel controller = Get.put(NaPortaViewModel());
+    return Scaffold(
+      
+      appBar: NaPortaAppBar(onTap: ()async {  
 
     
 
@@ -39,67 +40,67 @@ class HomePage extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text('Adicione o pedido'),
+                  title: const Text('Adicione o pedido'),
                   content: Form(
                     child: Column(children: [
                       TextFormField(
                         controller: numberPedidoController,
-                        decoration: InputDecoration(hintText: "Numero do pedido"),
+                        decoration: const InputDecoration(hintText: "Numero do pedido"),
                         validator: Validatorless.required('Coloque seu codigo'),
                         maxLength: 6,
                       ),
                       TextFormField(
-                        controller: latitudeFinalController,
-                        decoration: InputDecoration(hintText: "Endereço destino"),
+                        controller: destinoController,
+                        decoration: const InputDecoration(hintText: "Endereço destino"),
                         validator: Validatorless.required('Coloque seu endereço')
                     
                       ),
                
                       TextFormField(
                         controller: nomeController,
-                        decoration: InputDecoration(hintText: "Digite seu Nome"),
+                        decoration: const InputDecoration(hintText: "Digite seu Nome"),
                       ),
                       
                       TextFormField(
                         controller: emailController,
-                        decoration: InputDecoration(hintText: "seu email"),
+                        decoration: const InputDecoration(hintText: "seu email"),
                       ),
                       TextFormField(
                         controller: telefonController,
-                        decoration: InputDecoration(hintText: "seu celular"),
+                        decoration: const InputDecoration(hintText: "seu celular"),
                         maxLength: 11,
                       ),
                     ]),
                   ),
                   actions: <Widget>[
                     TextButton(
-                      child: Text('Cancel'),
+                      child: const Text('Cancel'),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                     ),
                     ElevatedButton(
-                      child: Text('Salvar'),
+                      child: const Text('Salvar'),
                       onPressed: () async {
                         
                         String numberPedido = numberPedidoController.text;
-                        var enderecoFinal = latitudeFinalController.text;
-                        controller.destinationAddress = enderecoFinal;
+                        var enderecoFinal = destinoController.text;
+                        controller.destinationAddress = destinoController.text;
 
-                        controller.addMarkersAndRoute(
-                            controller.startAddressController, enderecoFinal);
+                       
 
                         if (numberPedido.isNotEmpty) {
-                          controller.latitudeFinalController.text = enderecoFinal;
+                          controller.destinationAddress = enderecoFinal;
+                          
                           await controller.addUser(PedidoModel(
                               id: Random().nextInt(100),
                               pedido: numberPedido,
                               status: DateTime.now().toString(),
                             
-                              destinoFinal: enderecoFinal, nome: nomeController.text, email: emailController.text, celular: telefonController.text));
-                          Navigator.of(context).pop();
+                              destinoFinal: enderecoFinal.toLowerCase(), nome: nomeController.text.toLowerCase().capitalizeFirst, email: emailController.text.toLowerCase(), celular: telefonController.text));
+                          Get.back();
                         } else {
-                          Get.snackbar("Error", "Please enter valid data!");
+                          Get.snackbar("Error", "Erro ao salvar");
                         }
                       },
                     )
@@ -127,23 +128,28 @@ class HomePage extends StatelessWidget {
                         itemCount: controller.pedidos.length,
                         itemBuilder: (context, index) {
                           final order = controller.pedidos[index];
-                          return InkWell(
-                            child: NaPortaCard(
-                              title: order.pedido.toUpperCase(),
-                              subTitle: order.status.substring(0, 10),
+                          return Dismissible(
+                            key: UniqueKey(),
+                            background: const Card(color: Colors.red),
+                            onDismissed: ((direction) => controller.deleteUser(order.id)),
+                            child: InkWell(
+                              child: NaPortaCard(
+                                title: order.pedido.toUpperCase(),
+                                subTitle: order.status.substring(0, 10),
+                              ),
+                              onTap: () {
+                                controller.addMarkersAndRoute(order.destinoFinal??'avenida brasil');
+                                controller.goToMapScreen(index, order.destinoFinal??'rua londres');
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => PageDetail(
+                                    
+                                          descricaoUlt:
+                                              ' Chegando em ${order.destinoFinal}',
+                                          index: index,
+                                          pedidos: order, origin: controller.origin.value??LatLng(controller.origemLat, controller.origemLong), destination: controller.destination.value??LatLng(controller.origemLat, controller.origemLong),
+                                        )));
+                              },
                             ),
-                            onTap: () {
-                              controller.addMarkersAndRoute(controller.startAddressController, controller.destinationAddress);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => PageDetail(
-                                        descricaoUlt:
-                                            ' Saindo em ${controller.startAddressController}\n ',
-                                        descricaoInit:
-                                            ' Chegando em ${controller.destinationAddress}'.obs,
-                                        index: index,
-                                        pedidos: order,
-                                      )));
-                            },
                           );
                         })
                   ]),
