@@ -14,29 +14,20 @@ import 'package:validatorless/validatorless.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
-TextEditingController numberPedidoController =
-              TextEditingController();
-          TextEditingController destinoController =
-              TextEditingController();
-          
-          TextEditingController descricaoController = TextEditingController();
-          TextEditingController nomeController = TextEditingController();
+  TextEditingController numberPedidoController = TextEditingController();
+  TextEditingController destinoController = TextEditingController();
 
-          TextEditingController emailController = TextEditingController();
-          TextEditingController telefonController = TextEditingController();
+  TextEditingController descricaoController = TextEditingController();
+  TextEditingController nomeController = TextEditingController();
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController telefonController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final NaPortaViewModel controller = Get.put(NaPortaViewModel());
     return Scaffold(
-      
-      appBar: NaPortaAppBar(onTap: ()async {  
-
-    
-
-    
-
-
-        await  showDialog(
+        appBar: NaPortaAppBar(onTap: () async {
+          await showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -45,29 +36,31 @@ TextEditingController numberPedidoController =
                     child: Column(children: [
                       TextFormField(
                         controller: numberPedidoController,
-                        decoration: const InputDecoration(hintText: "Numero do pedido"),
+                        decoration:
+                            const InputDecoration(hintText: "Numero do pedido"),
                         validator: Validatorless.required('Coloque seu codigo'),
                         maxLength: 6,
                       ),
                       TextFormField(
-                        controller: destinoController,
-                        decoration: const InputDecoration(hintText: "Endereço destino"),
-                        validator: Validatorless.required('Coloque seu endereço')
-                    
-                      ),
-               
+                          controller: destinoController,
+                          decoration: const InputDecoration(
+                              hintText: "Endereço destino"),
+                          validator:
+                              Validatorless.required('Coloque seu endereço')),
                       TextFormField(
                         controller: nomeController,
-                        decoration: const InputDecoration(hintText: "Digite seu Nome"),
+                        decoration:
+                            const InputDecoration(hintText: "Digite seu Nome"),
                       ),
-                      
                       TextFormField(
                         controller: emailController,
-                        decoration: const InputDecoration(hintText: "seu email"),
+                        decoration:
+                            const InputDecoration(hintText: "seu email"),
                       ),
                       TextFormField(
                         controller: telefonController,
-                        decoration: const InputDecoration(hintText: "seu celular"),
+                        decoration:
+                            const InputDecoration(hintText: "seu celular"),
                         maxLength: 11,
                       ),
                     ]),
@@ -82,23 +75,29 @@ TextEditingController numberPedidoController =
                     ElevatedButton(
                       child: const Text('Salvar'),
                       onPressed: () async {
-                        
                         String numberPedido = numberPedidoController.text;
                         var enderecoFinal = destinoController.text;
                         controller.destinationAddress = destinoController.text;
 
-                       
-
                         if (numberPedido.isNotEmpty) {
                           controller.destinationAddress = enderecoFinal;
-                          
+
                           await controller.addUser(PedidoModel(
                               id: Random().nextInt(100),
                               pedido: numberPedido,
                               status: DateTime.now().toString(),
-                            
-                              destinoFinal: enderecoFinal.toLowerCase(), nome: nomeController.text.toLowerCase().capitalizeFirst, email: emailController.text.toLowerCase(), celular: telefonController.text));
-                          Get.back();
+                              destinoFinal: enderecoFinal.toLowerCase(),
+                              nome: nomeController.text
+                                  .toLowerCase()
+                                  .capitalizeFirst,
+                              email: emailController.text.toLowerCase(),
+                              celular: telefonController.text));
+                          Navigator.pop(context);
+                          numberPedidoController.clear();
+                          emailController.clear();
+                          telefonController.clear();
+                          nomeController.clear();
+                          destinoController.clear();
                         } else {
                           Get.snackbar("Error", "Erro ao salvar");
                         }
@@ -106,8 +105,7 @@ TextEditingController numberPedidoController =
                     )
                   ],
                 );
-              }
-      );
+              });
         }),
         body: Obx(() => Padding(
               padding: const EdgeInsets.all(20.0),
@@ -131,24 +129,31 @@ TextEditingController numberPedidoController =
                           return Dismissible(
                             key: UniqueKey(),
                             background: const Card(color: Colors.red),
-                            onDismissed: ((direction) => controller.deleteUser(order.id)),
+                            onDismissed: ((direction) =>
+                                controller.deleteUser(order.id)),
                             child: InkWell(
                               child: NaPortaCard(
                                 title: order.pedido.toUpperCase(),
                                 subTitle: order.status.substring(0, 10),
                               ),
                               onTap: () {
-                                controller.addMarkersAndRoute(order.destinoFinal??'avenida brasil');
+                                controller.addMarkersAndRoute(
+                                    order.destinoFinal ?? 'avenida brasil');
                                 //controller.goToMapScreen(index, order.destinoFinal??'rua londres');
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => PageDetail(
-                                    
                                           descricaoUlt:
                                               ' Chegando em ${order.destinoFinal}',
                                           index: index,
-                                          pedidos: order, origin: controller.origin.value??LatLng(controller.origemLat, controller.origemLong), destination: controller.destination.value??LatLng(controller.origemLat, controller.origemLong),
+                                          pedidos: order,
+                                          origin: controller.origin.value ??
+                                              LatLng(controller.origemLat,
+                                                  controller.origemLong),
+                                          destination:
+                                              controller.destination.value ??
+                                                  LatLng(controller.origemLat,
+                                                      controller.origemLong),
                                         )));
-                                        
                               },
                             ),
                           );
