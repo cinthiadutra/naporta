@@ -139,7 +139,7 @@ TextEditingController numberPedidoController =
                               ),
                               onTap: () {
                                 controller.addMarkersAndRoute(order.destinoFinal??'avenida brasil');
-                                controller.goToMapScreen(index, order.destinoFinal??'rua londres');
+                                //controller.goToMapScreen(index, order.destinoFinal??'rua londres');
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => PageDetail(
                                     
@@ -148,6 +148,7 @@ TextEditingController numberPedidoController =
                                           index: index,
                                           pedidos: order, origin: controller.origin.value??LatLng(controller.origemLat, controller.origemLong), destination: controller.destination.value??LatLng(controller.origemLat, controller.origemLong),
                                         )));
+                                        
                               },
                             ),
                           );

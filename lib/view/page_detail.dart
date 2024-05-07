@@ -47,8 +47,9 @@ class _PageDetailState extends State<PageDetail> {
             SizedBox(
                 height: MediaQuery.of(context).size.height * .3,
                 child: GoogleMap(
-                  markers: controller.markers,
-                    onMapCreated: onMapCreated,
+                  mapType: MapType.normal,
+                  markers: controller.markers.obs,
+                    onMapCreated: controller.onMapCreated,
                     initialCameraPosition:  CameraPosition(
                       target: controller.origin.value?? const LatLng(-22.8527559, -43.2682783),
                       zoom: 11.0,
@@ -132,8 +133,4 @@ class _PageDetailState extends State<PageDetail> {
         ));
   }
 
-   void onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-    
-  }
 }
