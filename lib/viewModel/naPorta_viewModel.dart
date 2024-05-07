@@ -56,10 +56,10 @@ Rx<LatLng?> origin = Rx<LatLng?>(const LatLng(-22.8527559, -43.2682783));
   }
   
 
-   addMarkersAndRoute(String destino) async {
+   addMarkersAndRoute() async {
   
     List<Location> destinationResults =
-  await locationFromAddress(destino);
+  await locationFromAddress(destinationAddress);
 
     LatLng startLatLng = LatLng(origemLat, origemLong);
     LatLng destinationLatLng =

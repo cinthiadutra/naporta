@@ -138,7 +138,7 @@ class HomePage extends StatelessWidget {
                               ),
                               onTap: () {
                                 controller.addMarkersAndRoute(
-                                    order.destinoFinal ?? 'avenida brasil');
+                                    );
                                 //controller.goToMapScreen(index, order.destinoFinal??'rua londres');
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => PageDetail(

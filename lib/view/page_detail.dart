@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors_in_immutables, must_be_immutable
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,7 +28,13 @@ class PageDetail extends StatefulWidget {
 }
 
 class _PageDetailState extends State<PageDetail> {
- late GoogleMapController mapController;
+final _mapController = Completer<GoogleMapController>();
+
+  //Defina a posição inicial da câmera quando o mapa carregar
+  final _initialPosition = const CameraPosition(
+    target: LatLng(-23.6821604, -46.8754942),
+    zoom: 10,
+  );
 
   final NaPortaViewModel controller = Get.put(NaPortaViewModel());
 
@@ -42,19 +50,19 @@ class _PageDetailState extends State<PageDetail> {
           toolbarHeight: 150,
           backgroundColor: Colors.orange[600],
         ),
-        body: Obx(
-          () => ListView(shrinkWrap: true, children: [
+        body: ListView(shrinkWrap: true, children: [
             SizedBox(
                 height: MediaQuery.of(context).size.height * .3,
                 child: GoogleMap(
                   mapType: MapType.normal,
                   markers: controller.markers.obs,
-                    onMapCreated: controller.onMapCreated,
-                    initialCameraPosition:  CameraPosition(
-                      target: controller.origin.value?? const LatLng(-22.8527559, -43.2682783),
-                      zoom: 11.0,
+                    onMapCreated: (controller) {
+          _mapController.complete(controller);
+        },
+
+                    initialCameraPosition: _initialPosition
                       
-                    ))),
+                    )),
             const SizedBox(
               height: 20,
             ),
@@ -130,7 +138,7 @@ class _PageDetailState extends State<PageDetail> {
               ),
             ),
           ]),
-        ));
+        );
   }
 
 }
